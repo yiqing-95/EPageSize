@@ -1,0 +1,89 @@
+in your index.php:
+
+<?php
+    $this->widget('ext.EPageSize.EPageSize', array(
+        'listViewId' => 'msg-list',
+        'pageSize' => Yii::app()->request->getParam('pageSize',null),
+        'defaultPageSize' =>  10 ,   // may use this :  Yii::app()->params['defaultPageSize'],
+        'pageSizeOptions'=> array(5=>5, 10=>10, 25=>25, 50=>50, 75=>75, 100=>100), // you can config it in main.php under the config dir . Yii::app()->params['pageSizeOptions'],// Optional, you can use with the widget default
+    ));
+    ?>
+
+</div>
+<?php
+    $dataProvider = $model->search();
+    $pageSize = Yii::app()->user->getState('pageSize',10/*Yii::app()->params['defaultPageSize']*/);
+    $dataProvider->getPagination()->setPageSize($pageSize);
+
+    $this->widget('common.widgets.EMediaGridView',array(
+        'id'=>'msg-list',
+        'template'=>"{pager}\n{summary}\n{items}\n{summary}\n{pager}",
+        'dataProvider'=>$dataProvider,
+         'itemView'=>'_view4admin',
+        // Remove the existing tooltips and rebind the plugin after each ajax-call.
+        'afterAjaxUpdate'=>'js:function() {
+
+                // jQuery(".tooltip").remove();
+                // jQuery("a[rel=tooltip]").tooltip();
+        }',
+
+in admin.php:
+
+  <?php
+    $this->widget('ext.PageSize.EPageSize', array(
+        'gridViewId' => 'msg-grid',
+        'pageSize' => Yii::app()->request->getParam('pageSize',null),
+        'defaultPageSize' =>  10 ,   // may use this :  Yii::app()->params['defaultPageSize'],
+        'pageSizeOptions'=> array(5=>5, 10=>10, 25=>25, 50=>50, 75=>75, 100=>100), // you can config it in main.php under the config dir . Yii::app()->params['pageSizeOptions'],// Optional, you can use with the widget default
+    ));
+    ?>
+</div>
+
+<?php
+  $dataProvider = $model->search();
+  $pageSize = Yii::app()->user->getState('pageSize',10/*Yii::app()->params['defaultPageSize']*/);
+  $pagination = $dataProvider->getPagination();
+  $pagination->setPageSize($pageSize);
+
+
+  $this->widget('common.widgets.gridview.EBootGridView',array(
+        'id'=>'msg-grid',
+        'afterAjaxUpdate'=>'js:function(id, data){
+                        $(".batch-op-targets").val("");
+                }',
+        'itemsCssClass'=>'table table-striped table-bordered table-condensed ',
+        'dataProvider'=>$dataProvider,
+        'filter'=>$model,
+        'selectableRows'=>2,
+        'template'=>"{pager}{listPager}\n{summary}\n{items}\n{summary}\n{pager}",
+        'columns'=>array(
+            array(
+            'class'=>'CCheckBoxColumn',
+            'id'=>'selectedItems',
+            'selectableRows'=>2,
+            ),
+		'id',
+		'uid',
+		'subject',
+		'body',
+		'type',
+		'sndr_asa',
+		/*
+		'snd_type',
+		'snd_status',
+		'priority',
+		'tpl_path',
+		'tpl_text',
+		'to_id',
+		'to_type',
+		'msg_pid',
+		'ctime',
+		'sent_time',
+		'delete_time',
+		*/
+		array(
+			'class'=>'ext.bootstrap.widgets.BootButtonColumn',
+            'htmlOptions' => array('class' => 'span2 pull-right','style'=>'width: 50px'),
+		),
+	),
+)); ?>
